@@ -2,18 +2,19 @@
 import { ref } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 
+let id = 0
 const boards = ref([
   {
-    id: 1,
-    title: 'board1',
+    id: id++,
+    title: `board ${id}`,
     notes: [
       { id: 1, content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.' },
       { id: 2, content: 'Excepturi corrupti reru similique ipsa velit.' },
     ],
   },
   {
-    id: 2,
-    title: 'board2',
+    id: id++,
+    title: `board ${id}`,
     notes: [
       { id: 3, content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.' },
       { id: 4, content: 'Excepturi corrupti reru similique ipsa velit.' },
@@ -32,6 +33,16 @@ function onAdd(event) {
 function onRemove(event) {
   console.log('보드에서 메모 제거', event)
 }
+
+function onClickAddBoard(e) {
+  e.preventDefault()
+  console.log('보드 추가!')
+  boards.value.push({
+    id: id++,
+    title: `board ${id}`,
+    notes: [],
+  })
+}
 </script>
 
 <template>
@@ -40,7 +51,7 @@ function onRemove(event) {
       <div><h1>Vue Memo Board</h1></div>
       <div>
         <form action="" class="form">
-          <button class="form__btn-add">추가</button>
+          <button class="form__btn-add" @click="onClickAddBoard">추가</button>
           <input
             type="text"
             class="form__input"
