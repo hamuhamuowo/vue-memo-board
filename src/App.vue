@@ -1,5 +1,8 @@
 <script setup>
-const boards = [
+import { ref } from 'vue'
+import { VueDraggable } from 'vue-draggable-plus'
+
+const boards = ref([
   {
     id: 1,
     title: 'board1',
@@ -12,17 +15,29 @@ const boards = [
     id: 2,
     title: 'board2',
     notes: [
-      { id: 1, content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.' },
-      { id: 2, content: 'Excepturi corrupti reru similique ipsa velit.' },
+      { id: 3, content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.' },
+      { id: 4, content: 'Excepturi corrupti reru similique ipsa velit.' },
     ],
   },
-]
+])
+
+function onUpdate() {
+  console.log('메모 위치 변경')
+}
+
+function onAdd(event) {
+  console.log('새로운 보드에 메모 추가(이동)', event)
+}
+
+function onRemove(event) {
+  console.log('보드에서 메모 제거', event)
+}
 </script>
 
 <template>
   <div class="wrap">
     <header class="header">
-      <div><h1>vue memo board</h1></div>
+      <div><h1>Vue Memo Board</h1></div>
       <div>
         <form action="" class="form">
           <button class="form__btn-add">추가</button>
@@ -38,12 +53,23 @@ const boards = [
     </header>
     <main class="block__grid">
       <section v-for="board in boards" :key="board.id">
-        <h3>
-          {{ board.title }}
-        </h3>
-        <article v-for="note in board.notes" :key="note.id" class="note">
-          {{ note.content }}
-        </article>
+        <h3>{{ board.title }}</h3>
+        <VueDraggable
+          v-model="board.notes"
+          group="{ name: 'notes', pull: true, put: true }"
+          animation="150"
+          class="note-container"
+          @update="onUpdate"
+          @add="onAdd"
+          @remove="onRemove"
+        >
+          <article v-for="note in board.notes" :key="note.id" class="note">
+            {{ note.content }}
+          </article>
+          <template v-if="board.notes.length === 0">
+            <div class="empty-placeholder">empty</div>
+          </template>
+        </VueDraggable>
       </section>
     </main>
   </div>
@@ -101,14 +127,24 @@ const boards = [
   flex-direction: column;
   align-items: center;
   border-radius: 1rem;
+  padding: 1rem;
 }
 
-.block__grid section article {
+.note-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.note {
   width: 80%;
   padding: 1rem;
   background-color: aliceblue;
-  margin-bottom: 0.5rem;
   border-radius: 1rem;
   text-align: left;
+  cursor: grab;
 }
 </style>
