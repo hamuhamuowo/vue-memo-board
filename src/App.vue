@@ -2,25 +2,21 @@
 import { ref } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 
-let id = 0
+let id = 1
+const editingBoardId = ref(null) // 수정중 보드 ID
 const boards = ref([
   {
-    id: id++,
-    title: `board ${id}`,
-    notes: [
-      { id: 1, content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.' },
-      { id: 2, content: 'Excepturi corrupti reru similique ipsa velit.' },
-    ],
-  },
-  {
-    id: id++,
-    title: `board ${id}`,
-    notes: [
-      { id: 3, content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.' },
-      { id: 4, content: 'Excepturi corrupti reru similique ipsa velit.' },
-    ],
+    id: 0,
+    title: `미설정`,
+    notes: [],
   },
 ])
+const memoContent = ref('')
+
+function onChangeMemoContent(e) {
+  console.log(e.target.value)
+  memoContent.value = e.target.value
+}
 
 function onUpdate() {
   console.log('메모 위치 변경')
@@ -34,14 +30,38 @@ function onRemove(event) {
   console.log('보드에서 메모 제거', event)
 }
 
+function onClickDeleteBoard(boardId) {
+  boards.value = boards.value.filter((b) => b.id !== boardId)
+}
+
 function onClickAddBoard(e) {
   e.preventDefault()
   console.log('보드 추가!')
   boards.value.push({
     id: id++,
-    title: `board ${id}`,
+    title: '이름없음',
     notes: [],
   })
+}
+
+function onClickSaveMemo(e) {
+  e.preventDefault()
+  boards.value[0].notes.push({
+    content: memoContent.value,
+  })
+  document.getElementById('memoInput').value = ''
+}
+
+function startEditing(boardId) {
+  editingBoardId.value = boardId
+}
+
+function saveTitle(boardId, event) {
+  const board = boards.value.find((b) => b.id === boardId)
+  if (board) {
+    board.title = event.target.value !== '' ? event.target.value : '이름없음'
+  }
+  editingBoardId.value = null
 }
 </script>
 
@@ -54,17 +74,32 @@ function onClickAddBoard(e) {
           <button class="form__btn-add" @click="onClickAddBoard">추가</button>
           <input
             type="text"
+            id="memoInput"
             class="form__input"
-            placeholder="내용을 입력하시고 엔터를 눌러주세요 ..."
+            placeholder="내용을 입력하시고 저장 버튼을 눌러주세요 ..."
             maxlength="100"
+            @input="onChangeMemoContent"
           />
-          <button class="form__btn-submit">저장</button>
+          <button @click="onClickSaveMemo" class="form__btn-submit">저장</button>
         </form>
       </div>
     </header>
     <main class="block__grid">
       <section v-for="board in boards" :key="board.id">
-        <h3>{{ board.title }}</h3>
+        <button @click="onClickDeleteBoard(board.id)" v-if="board.id !== 0">x</button>
+        <h3 v-if="editingBoardId !== board.id" @click="startEditing(board.id)">
+          {{ board.title }}
+        </h3>
+        <input
+          v-else
+          type="text"
+          :value="board.title"
+          @blur="saveTitle(board.id, $event)"
+          @keyup.enter="saveTitle(board.id, $event)"
+          class="board__input-title"
+          autofocus
+        />
+
         <VueDraggable
           v-model="board.notes"
           group="{ name: 'notes', pull: true, put: true }"
@@ -139,6 +174,16 @@ function onClickAddBoard(e) {
   align-items: center;
   border-radius: 1rem;
   padding: 1rem;
+}
+
+.board__input-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: none;
+  outline: none;
+  background: transparent;
+  text-align: center;
+  width: 100%;
 }
 
 .note-container {
