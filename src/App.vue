@@ -1,9 +1,10 @@
 <script setup>
-import { ref } from 'vue'
+import { nextTick, ref } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 
 let id = 1
 const editingBoardId = ref(null) // 수정중 보드 ID
+const titleInputRef = ref(null) // 보드 타이틀 수정용 인풋
 const boards = ref([
   {
     id: 0,
@@ -54,6 +55,12 @@ function onClickSaveMemo(e) {
 
 function startEditing(boardId) {
   editingBoardId.value = boardId
+  nextTick(() => {
+    const input = document.querySelector('.board__input-title')
+    if (input) {
+      input.focus()
+    }
+  })
 }
 
 function saveTitle(boardId, event) {
@@ -98,6 +105,7 @@ function saveTitle(boardId, event) {
           @keyup.enter="saveTitle(board.id, $event)"
           class="board__input-title"
           autofocus
+          ref="titleInputRef"
         />
 
         <VueDraggable
