@@ -1,0 +1,14 @@
+:root {
+  --main-color: #80c67b;
+  --sub-color: #433b17;
+}
+
+body {
+  background-color: var(--main-color);
+  color: var(--sub-color);
+}
+
+::selection {
+  color: var(--main-color);
+  background-color: var(--sub-color);
+}
