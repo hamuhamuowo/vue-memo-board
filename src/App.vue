@@ -12,7 +12,7 @@ const titleInputRef = ref(null) // 보드 타이틀 수정용 인풋
 const boards = ref([
   {
     id: 0,
-    title: `미설정`,
+    title: ``,
     notes: [],
   },
 ])
@@ -63,8 +63,12 @@ function onClickSaveMemo(e) {
       id: randomId.value,
       content: memoContent.value,
     })
-  } else {
+  } else if (e.target.type === 'text') {
+    // 엔터로 조작했을 때
     vibration(e.target)
+  } else if (e.target.type === 'button') {
+    // 버튼을 클릭했을 때
+    vibration(e.target.previousElementSibling)
   }
   document.getElementById('memoInput').value = ''
   memoContent.value = ''
@@ -89,9 +93,10 @@ function saveTitle(boardId, event) {
 }
 
 function onClickMemoDelete(id) {
-  console.log(id)
-  for (let i = 0; i < boards.value.length; i++) {
-    boards.value[i].notes = boards.value[i].notes.filter((note) => note.id !== id)
+  if (confirm('메모를 삭제하겟습니까?')) {
+    for (let i = 0; i < boards.value.length; i++) {
+      boards.value[i].notes = boards.value[i].notes.filter((note) => note.id !== id)
+    }
   }
 }
 </script>
@@ -99,26 +104,43 @@ function onClickMemoDelete(id) {
 <template>
   <div class="wrap">
     <header class="header">
-      <div><h1>Vue Memo Board</h1></div>
+      <div>
+        <span>메모장...</span>
+        <pre>
+.　 -、_　○_,-￣
+　　　 〇
+　　　 ｏ
+○＝＝∧,,∧＝＝○
+|| (⌒ (´-ω-`) ⌒) ||
+/⌒⌒O⌒⌒O⌒⌒⌒i|
+／＃　＃　＃　＃／)
+
+</pre
+        >
+      </div>
       <div>
         <form action="" class="form" @submit.prevent>
-          <button type="button" class="form__btn-add" @click="onClickAddBoard">보드 추가</button>
+          <button type="button" class="button form__btn-add" @click="onClickAddBoard">
+            보드 추가
+          </button>
           <input
             type="text"
             id="memoInput"
             class="form__input"
-            placeholder="내용을 입력하시고 저장 버튼을 눌러주세요 ..."
-            maxlength="100"
+            placeholder="내용을 입력한 후 저장 버튼을 누르세요 ..."
+            maxlength="255"
             autocomplete="off"
             @input="onChangeMemoContent"
             @keyup.enter="onClickSaveMemo"
           />
-          <button type="button" @click="onClickSaveMemo" class="form__btn-submit">메모 저장</button>
+          <button type="button" @click="onClickSaveMemo" class="button form__btn-submit">
+            메모 저장
+          </button>
         </form>
       </div>
     </header>
     <main class="block__grid">
-      <section v-for="board in boards" :key="board.id">
+      <section v-for="board in boards" :key="board.id" class="section">
         <button @click="onClickDeleteBoard(board.id)" v-if="board.id !== 0" class="block__btn-x">
           x
         </button>
@@ -166,6 +188,11 @@ function onClickMemoDelete(id) {
   text-align: center;
 }
 
+.header {
+  padding: 3rem 0;
+  font-weight: 600;
+}
+
 .form {
   display: flex;
   gap: 1rem;
@@ -176,24 +203,40 @@ function onClickMemoDelete(id) {
   padding: 1rem;
   width: 100%;
   outline: none;
-  background-color: #ccc;
-  border: none;
-  font-size: 2rem;
-  font-weight: 700;
+  border: 1px solid var(--sub-color);
+  font-size: 1.6rem;
+  font-weight: 500;
   border-radius: 1rem;
+  background-color: transparent;
+  color: var(--sub-color);
 }
 
-.form button {
+.form__input::placeholder {
+  color: var(--sub-color);
+  opacity: 0.4;
+}
+
+.form .button {
   width: 5rem;
   height: 5rem;
   border-radius: 1rem;
-  border: none;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.1s;
 }
 
-.form button:hover {
-  background-color: aquamarine;
+.form__btn-add,
+.form__btn-submit:hover {
+  background-color: var(--main-color);
+  border: 1px solid var(--sub-color);
+  color: var(--sub-color);
+}
+
+.form__btn-add:hover,
+.form__btn-submit,
+.block__btn-x:hover {
+  background-color: var(--sub-color);
+  border: none;
+  color: var(--main-color);
 }
 
 .block__grid {
@@ -202,9 +245,10 @@ function onClickMemoDelete(id) {
   gap: 1rem;
 }
 
-.block__grid section {
-  flex: 1 1 calc(20% - 1rem);
-  background-color: #ccc;
+.block__grid .section {
+  flex: 1 1 calc(20% - 2rem);
+  background-color: var(--sub-color);
+  color: var(--main-color);
   height: 700px;
   display: flex;
   flex-direction: column;
@@ -214,15 +258,27 @@ function onClickMemoDelete(id) {
   position: relative;
 }
 
-.block__grid section:nth-child(1) {
-  background-color: transparent;
+.block__grid .section:nth-child(1) {
+  background-color: var(--main-color);
+  border: 1px solid var(--sub-color);
+  position: relative;
+}
+
+.section:nth-child(1)::before {
+  content: '';
+  width: 2rem;
+  height: 4.5rem;
+  background-color: var(--sub-color);
+  position: absolute;
+  top: -2.4rem;
+  left: 2rem;
 }
 
 .block__btn-x {
   position: absolute;
   right: 1rem;
   border: none;
-  background-color: aliceblue;
+  background-color: var(--main-color);
   padding: 0.2rem 0.6rem;
   display: flex;
   justify-content: center;
@@ -230,10 +286,6 @@ function onClickMemoDelete(id) {
   border-radius: 0.4rem;
   cursor: pointer;
   transition: 0.3s all;
-}
-
-.block__btn-x:hover {
-  background-color: aquamarine;
 }
 
 .board__input-title {
@@ -245,6 +297,7 @@ function onClickMemoDelete(id) {
   text-align: center;
   width: 100%;
   padding: 1rem 0;
+  color: var(--main-color);
 }
 
 .note-container {
@@ -259,13 +312,21 @@ function onClickMemoDelete(id) {
 .note {
   width: 80%;
   padding: 1rem 2rem;
-  background-color: aliceblue;
+  background-color: var(--sub-color);
+  color: var(--main-color);
   border-radius: 1rem;
   text-align: left;
   cursor: grab;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--main-color);
+}
+
+.note:hover {
+  transform: scale(1.01);
+  transition: 0.3s all;
 }
 
 .vibration {
