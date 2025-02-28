@@ -15,7 +15,6 @@ const boards = ref([
 const memoContent = ref('')
 
 function onChangeMemoContent(e) {
-  console.log(e.target.value)
   memoContent.value = e.target.value
 }
 
@@ -37,7 +36,6 @@ function onClickDeleteBoard(boardId) {
 
 function onClickAddBoard(e) {
   e.preventDefault()
-  console.log('보드 추가!')
   boards.value.push({
     id: id++,
     title: '이름없음',
@@ -78,7 +76,7 @@ function saveTitle(boardId, event) {
       <div><h1>Vue Memo Board</h1></div>
       <div>
         <form action="" class="form">
-          <button class="form__btn-add" @click="onClickAddBoard">추가</button>
+          <button class="form__btn-add" @click="onClickAddBoard">보드 추가</button>
           <input
             type="text"
             id="memoInput"
@@ -87,13 +85,15 @@ function saveTitle(boardId, event) {
             maxlength="100"
             @input="onChangeMemoContent"
           />
-          <button @click="onClickSaveMemo" class="form__btn-submit">저장</button>
+          <button @click="onClickSaveMemo" class="form__btn-submit">메모 저장</button>
         </form>
       </div>
     </header>
     <main class="block__grid">
       <section v-for="board in boards" :key="board.id">
-        <button @click="onClickDeleteBoard(board.id)" v-if="board.id !== 0">x</button>
+        <button @click="onClickDeleteBoard(board.id)" v-if="board.id !== 0" class="block__btn-x">
+          x
+        </button>
         <h3 v-if="editingBoardId !== board.id" @click="startEditing(board.id)">
           {{ board.title }}
         </h3>
@@ -182,6 +182,25 @@ function saveTitle(boardId, event) {
   align-items: center;
   border-radius: 1rem;
   padding: 1rem;
+  position: relative;
+}
+
+.block__btn-x {
+  position: absolute;
+  right: 1rem;
+  border: none;
+  background-color: aliceblue;
+  padding: 0.2rem 0.6rem;
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  transition: 0.3s all;
+}
+
+.block__btn-x:hover {
+  background-color: aquamarine;
 }
 
 .board__input-title {
@@ -192,6 +211,7 @@ function saveTitle(boardId, event) {
   background: transparent;
   text-align: center;
   width: 100%;
+  padding: 1rem 0;
 }
 
 .note-container {
