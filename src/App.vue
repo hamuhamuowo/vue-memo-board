@@ -75,8 +75,8 @@ function saveTitle(boardId, event) {
     <header class="header">
       <div><h1>Vue Memo Board</h1></div>
       <div>
-        <form action="" class="form">
-          <button class="form__btn-add" @click="onClickAddBoard">보드 추가</button>
+        <form action="" class="form" @submit.prevent>
+          <button type="button" class="form__btn-add" @click="onClickAddBoard">보드 추가</button>
           <input
             type="text"
             id="memoInput"
@@ -84,8 +84,9 @@ function saveTitle(boardId, event) {
             placeholder="내용을 입력하시고 저장 버튼을 눌러주세요 ..."
             maxlength="100"
             @input="onChangeMemoContent"
+            @keyup.enter="onClickSaveMemo"
           />
-          <button @click="onClickSaveMemo" class="form__btn-submit">메모 저장</button>
+          <button type="button" @click="onClickSaveMemo" class="form__btn-submit">메모 저장</button>
         </form>
       </div>
     </header>
