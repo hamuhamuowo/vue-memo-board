@@ -14,6 +14,14 @@ const boards = ref([
 ])
 const memoContent = ref('')
 
+const vibration = (target) => {
+  target.classList.add('vibration')
+
+  setTimeout(function () {
+    target.classList.remove('vibration')
+  }, 400)
+}
+
 function onChangeMemoContent(e) {
   memoContent.value = e.target.value
 }
@@ -45,10 +53,16 @@ function onClickAddBoard(e) {
 
 function onClickSaveMemo(e) {
   e.preventDefault()
-  boards.value[0].notes.push({
-    content: memoContent.value,
-  })
+  console.log(memoContent.value)
+  if (memoContent.value && memoContent.value.trim() !== '') {
+    boards.value[0].notes.push({
+      content: memoContent.value,
+    })
+  } else {
+    vibration(e.target)
+  }
   document.getElementById('memoInput').value = ''
+  memoContent.value = ''
 }
 
 function startEditing(boardId) {
@@ -83,6 +97,7 @@ function saveTitle(boardId, event) {
             class="form__input"
             placeholder="내용을 입력하시고 저장 버튼을 눌러주세요 ..."
             maxlength="100"
+            autocomplete="off"
             @input="onChangeMemoContent"
             @keyup.enter="onClickSaveMemo"
           />
@@ -231,5 +246,18 @@ function saveTitle(boardId, event) {
   border-radius: 1rem;
   text-align: left;
   cursor: grab;
+}
+
+.vibration {
+  animation: vibration 0.1s infinite;
+}
+
+@keyframes vibration {
+  from {
+    transform: rotate(0.3deg);
+  }
+  to {
+    transform: rotate(-0.3deg);
+  }
 }
 </style>
