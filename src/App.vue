@@ -1,8 +1,12 @@
 <script setup>
 import { nextTick, ref } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import { v1 as uuidv1 } from 'uuid'
 
 let id = 1
+const randomId = ref(null)
 const editingBoardId = ref(null) // 수정중 보드 ID
 const titleInputRef = ref(null) // 보드 타이틀 수정용 인풋
 const boards = ref([
@@ -53,9 +57,10 @@ function onClickAddBoard(e) {
 
 function onClickSaveMemo(e) {
   e.preventDefault()
-  console.log(memoContent.value)
   if (memoContent.value && memoContent.value.trim() !== '') {
+    randomId.value = uuidv1()
     boards.value[0].notes.push({
+      id: randomId.value,
       content: memoContent.value,
     })
   } else {
@@ -81,6 +86,13 @@ function saveTitle(boardId, event) {
     board.title = event.target.value !== '' ? event.target.value : '이름없음'
   }
   editingBoardId.value = null
+}
+
+function onClickMemoDelete(id) {
+  console.log(id)
+  for (let i = 0; i < boards.value.length; i++) {
+    boards.value[i].notes = boards.value[i].notes.filter((note) => note.id !== id)
+  }
 }
 </script>
 
@@ -135,6 +147,7 @@ function saveTitle(boardId, event) {
         >
           <article v-for="note in board.notes" :key="note.id" class="note">
             {{ note.content }}
+            <font-awesome-icon :icon="faTrash" @click="onClickMemoDelete(note.id)" />
           </article>
           <template v-if="board.notes.length === 0">
             <div class="empty-placeholder">empty</div>
@@ -201,6 +214,10 @@ function saveTitle(boardId, event) {
   position: relative;
 }
 
+.block__grid section:nth-child(1) {
+  background-color: transparent;
+}
+
 .block__btn-x {
   position: absolute;
   right: 1rem;
@@ -241,11 +258,14 @@ function saveTitle(boardId, event) {
 
 .note {
   width: 80%;
-  padding: 1rem;
+  padding: 1rem 2rem;
   background-color: aliceblue;
   border-radius: 1rem;
   text-align: left;
   cursor: grab;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .vibration {
