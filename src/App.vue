@@ -63,15 +63,18 @@ function onClickSaveMemo(e) {
       id: randomId.value,
       content: memoContent.value,
     })
-  } else if (e.target.type === 'text') {
+    document.getElementById('memoInput').value = ''
+    memoContent.value = ''
+    return
+  }
+
+  if (e.target.type === 'text') {
     // 엔터로 조작했을 때
     vibration(e.target)
   } else if (e.target.type === 'button') {
     // 버튼을 클릭했을 때
     vibration(e.target.previousElementSibling)
   }
-  document.getElementById('memoInput').value = ''
-  memoContent.value = ''
 }
 
 function startEditing(boardId) {
