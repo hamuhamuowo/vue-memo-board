@@ -50,7 +50,7 @@ function onClickAddBoard(e) {
   e.preventDefault()
   boards.value.push({
     id: id++,
-    title: '이름없음',
+    title: '이름을 설정하세요',
     notes: [],
   })
 }
@@ -243,6 +243,7 @@ function onClickMemoDelete(id) {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+  padding-bottom: 3rem;
 }
 
 .block__grid .section {
