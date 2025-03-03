@@ -175,7 +175,9 @@ function onClickMemoDelete(id) {
             <font-awesome-icon :icon="faTrash" @click="onClickMemoDelete(note.id)" />
           </article>
           <template v-if="board.notes.length === 0">
-            <div class="empty-placeholder">empty</div>
+            <div class="empty-placeholder">
+              <span class="empty-text">메모를 옮겨보세요...</span>
+            </div>
           </template>
         </VueDraggable>
       </section>
@@ -302,6 +304,20 @@ function onClickMemoDelete(id) {
   width: 100%;
   padding: 1rem 0;
   color: var(--main-color);
+}
+
+.empty-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.empty-text {
+  font-size: 2rem;
+  font-weight: 700;
+  opacity: 0.5;
 }
 
 .note-container {
