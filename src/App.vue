@@ -50,7 +50,7 @@ function onClickAddBoard(e) {
   e.preventDefault()
   boards.value.push({
     id: id++,
-    title: '이름을 설정하세요',
+    title: '클릭 후 이름을 설정하세요',
     notes: [],
   })
 }
