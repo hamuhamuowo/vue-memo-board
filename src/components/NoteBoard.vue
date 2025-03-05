@@ -71,11 +71,9 @@ const updateNoteOrder = async (boardId, notes) => {
           {{ note.content }}
           <font-awesome-icon :icon="faTrash" @click="props.deleteMemo(note.id)" />
         </article>
-        <!-- <template v-if="board.notes.length === 0"> -->
         <div class="empty-placeholder">
           <span class="empty-text">메모를 옮겨보세요...</span>
         </div>
-        <!-- </template> -->
       </VueDraggable>
     </section>
   </main>
