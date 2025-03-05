@@ -3,6 +3,7 @@ import { nextTick, ref } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import { supabase } from '../lib/supabase'
 
 const props = defineProps(['boards', 'deleteBoard', 'deleteMemo'])
 
@@ -25,6 +26,12 @@ const saveTitle = (boardId, event) => {
     board.title = event.target.value !== '' ? event.target.value : '이름없음'
   }
   editingBoardId.value = null
+}
+
+const updateNoteOrder = async (boardId, notes) => {
+  for (const note of notes) {
+    await supabase.from('notes').update({ board_id: boardId }).match({ id: note.id })
+  }
 }
 </script>
 
@@ -55,19 +62,20 @@ const saveTitle = (boardId, event) => {
 
       <VueDraggable
         v-model="board.notes"
-        group="{ name: 'notes', pull: true, put: true }"
+        group="notes"
         animation="150"
         class="note-container"
+        @end="updateNoteOrder(board.id, board.notes)"
       >
         <article v-for="note in board.notes" :key="note.id" class="note">
           {{ note.content }}
           <font-awesome-icon :icon="faTrash" @click="props.deleteMemo(note.id)" />
         </article>
-        <template v-if="board.notes.length === 0">
-          <div class="empty-placeholder">
-            <span class="empty-text">메모를 옮겨보세요...</span>
-          </div>
-        </template>
+        <!-- <template v-if="board.notes.length === 0"> -->
+        <div class="empty-placeholder">
+          <span class="empty-text">메모를 옮겨보세요...</span>
+        </div>
+        <!-- </template> -->
       </VueDraggable>
     </section>
   </main>

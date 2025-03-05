@@ -1,54 +1,80 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import NoteBoard from './components/NoteBoard.vue'
-import { v1 as uuidv1 } from 'uuid'
+import {
+  fetchBoards,
+  fetchNotes,
+  addBoard,
+  deleteBoard,
+  addNote,
+  deleteNote,
+  createDefaultBoard,
+} from './lib/supabaseApi'
 
-const boards = ref([
-  {
-    id: 0,
-    title: ``,
-    notes: [],
-  },
-])
+const boards = ref([])
 
-let id = 1
-const addBoard = () => {
-  boards.value.push({
-    id: id++,
-    title: '클릭 후 이름을 설정하세요',
-    notes: [],
-  })
-}
+const loadBoards = async () => {
+  const fetchedBoards = await fetchBoards()
 
-const saveMemo = (memoContent) => {
-  if (memoContent && memoContent.trim() !== '') {
-    boards.value[0].notes.push({
-      id: uuidv1(),
-      content: memoContent,
-    })
+  if (fetchedBoards.length === 0) {
+    const defaultBoard = await createDefaultBoard()
+    if (defaultBoard) {
+      defaultBoard.notes = [] // 기본 보드의 노트 배열 추가
+      boards.value = [defaultBoard]
+    }
+  } else {
+    // 보드별로 노트를 가져와서 boards 배열에 추가
+    for (const board of fetchedBoards) {
+      const notes = await fetchNotes(board.id) // 각 보드에 대한 노트 가져오기
+      board.notes = notes || [] // notes가 없으면 빈 배열 할당
+    }
+    boards.value = fetchedBoards
   }
 }
 
-const deleteBoard = (boardId, boardTitle) => {
-  if (confirm(`${boardTitle} 보드를 삭제할가욤?`)) {
+onMounted(async () => {
+  loadBoards()
+})
+
+const handleAddBoard = async () => {
+  const newBoard = await addBoard('새 보드')
+  if (newBoard) boards.value.push(newBoard)
+}
+
+const handleDeleteBoard = async (boardId, boardTitle) => {
+  if (confirm(`${boardTitle} 보드를 삭제할까요?`)) {
+    await deleteBoard(boardId)
     boards.value = boards.value.filter((b) => b.id !== boardId)
   }
 }
 
-const deleteMemo = (noteId) => {
-  if (confirm('삭제하시갯어용?')) {
-    for (let i = 0; i < boards.value.length; i++) {
-      boards.value[i].notes = boards.value[i].notes.filter((note) => note.id !== noteId)
+const handleSaveMemo = async (boardId, memoContent) => {
+  if (memoContent && memoContent.trim() !== '') {
+    const newNote = await addNote(boardId, memoContent)
+    if (newNote) {
+      const board = boards.value.find((b) => b.id === boardId)
+      if (board) {
+        board.notes.push(newNote) // 해당 보드의 notes 배열에 추가
+      }
     }
+  }
+}
+
+const handleDeleteMemo = async (noteId) => {
+  if (confirm('삭제하시겠습니까?')) {
+    await deleteNote(noteId)
+    boards.value.forEach((board) => {
+      board.notes = board.notes.filter((note) => note.id !== noteId)
+    })
   }
 }
 </script>
 
 <template>
   <div class="wrap">
-    <AppHeader :add-board="addBoard" :save-memo="saveMemo" />
-    <NoteBoard :boards="boards" :delete-board="deleteBoard" :delete-memo="deleteMemo" />
+    <AppHeader :add-board="handleAddBoard" :save-memo="handleSaveMemo" />
+    <NoteBoard :boards="boards" :delete-board="handleDeleteBoard" :delete-memo="handleDeleteMemo" />
   </div>
 </template>
 

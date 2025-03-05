@@ -3,6 +3,7 @@ import { ref } from 'vue'
 
 const props = defineProps(['addBoard', 'saveMemo'])
 const memoContent = ref('')
+const defaultBoardId = 0
 
 const vibration = (target) => {
   target.classList.add('vibration')
@@ -19,7 +20,7 @@ const onChangeMemoContent = (e) => {
 const onClickSaveMemo = (e) => {
   e.preventDefault()
   if (memoContent.value && memoContent.value.trim() !== '') {
-    props.saveMemo(memoContent.value)
+    props.saveMemo(defaultBoardId, memoContent.value)
     memoContent.value = ''
     document.getElementById('memoInput').value = ''
   } else {
