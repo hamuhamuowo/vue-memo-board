@@ -30,9 +30,12 @@ export const deleteBoard = async (boardId) => {
 
 // 메모 불러오기
 export const fetchNotes = async (boardId) => {
-  const { data, error } = await supabase.from('notes').select('*').eq('board_id', boardId)
+  const { data, error } = await supabase
+    .from('notes')
+    .select('*')
+    .eq('board_id', boardId)
+    .order('order', { ascending: true }) // order 기준으로 정렬
   if (error) console.error(error)
-  console.log(data)
   return data || []
 }
 

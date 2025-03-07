@@ -29,9 +29,17 @@ const saveTitle = (boardId, event) => {
 }
 
 const updateNoteOrder = async (boardId, notes) => {
-  for (const note of notes) {
-    await supabase.from('notes').update({ board_id: boardId }).match({ id: note.id })
-  }
+  const updates = notes.map((note, index) => ({
+    id: note.id,
+    board_id: boardId, // 노트가 이동한 보드의 ID로 업데이트
+    order: index, // 새로운 순서 저장
+    content: note.content, // 기존 내용 유지
+  }))
+
+  console.log(updates)
+
+  const { error } = await supabase.from('notes').upsert(updates)
+  if (error) console.error('노트 순서 업데이트 실패:', error)
 }
 </script>
 
@@ -59,7 +67,6 @@ const updateNoteOrder = async (boardId, notes) => {
         maxlength="18"
         ref="titleInputRef"
       />
-
       <VueDraggable
         v-model="board.notes"
         group="notes"
@@ -71,7 +78,7 @@ const updateNoteOrder = async (boardId, notes) => {
           {{ note.content }}
           <font-awesome-icon :icon="faTrash" @click="props.deleteMemo(note.id)" />
         </article>
-        <div class="empty-placeholder">
+        <div class="empty-placeholder" v-if="board.notes.length === 0">
           <span class="empty-text">메모를 옮겨보세요...</span>
         </div>
       </VueDraggable>
