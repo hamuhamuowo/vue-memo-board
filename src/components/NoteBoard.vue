@@ -20,11 +20,17 @@ const startEditing = (boardId) => {
   })
 }
 
-const saveTitle = (boardId, event) => {
-  const board = props.boards.find((b) => b.id === boardId)
-  if (board) {
-    board.title = event.target.value !== '' ? event.target.value : '이름없음'
+const saveTitle = async (boardId, event) => {
+  const newTitle =
+    event.target.value && event.target.value.trim('') !== '' ? event.target.value : '새 보드'
+  const { error } = await supabase.from('boards').update({ title: newTitle }).eq('id', boardId)
+  if (error) {
+    console.log('보드 제목 업데이트 실패 : ', error)
+    return
   }
+  console.log('보드 제목 업데이트 성공')
+  const board = props.boards.find((b) => b.id === boardId)
+  board.title = newTitle
   editingBoardId.value = null
 }
 
